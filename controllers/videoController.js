@@ -3,7 +3,6 @@ const db = require("../server");
 // Upload video
 const uploadVideo = (req, res) => {
   try {
-    // Multer file
     if (!req.file) {
       return res.status(400).json({ message: "ভিডিও ফাইল প্রয়োজন" });
     }
@@ -14,17 +13,15 @@ const uploadVideo = (req, res) => {
       return res.status(400).json({ message: "সব ফিল্ড পূরণ করুন" });
     }
 
-    // Video path
     const video_url = req.file.path; // uploads/filename.mp4
 
-    // Insert into DB
     db.query(
       "INSERT INTO videos (user_id, title, description, video_url) VALUES (?, ?, ?, ?)",
       [user_id, title, description, video_url],
       (err, result) => {
         if (err) {
           console.error("DB Insert Error:", err);
-          return res.status(500).json({ fatal: true });
+          return res.status(500).json({ fatal: true, error: err.message });
         }
 
         res.status(201).json({
@@ -41,7 +38,7 @@ const uploadVideo = (req, res) => {
     );
   } catch (err) {
     console.error("Upload Error:", err);
-    res.status(500).json({ fatal: true });
+    res.status(500).json({ fatal: true, error: err.message });
   }
 };
 
@@ -50,7 +47,7 @@ const getVideos = (req, res) => {
   db.query("SELECT * FROM videos ORDER BY created_at DESC", (err, result) => {
     if (err) {
       console.error("DB Fetch Error:", err);
-      return res.status(500).json({ fatal: true });
+      return res.status(500).json({ fatal: true, error: err.message });
     }
     res.status(200).json(result);
   });
@@ -68,7 +65,7 @@ const likeVideo = (req, res) => {
     (err) => {
       if (err) {
         console.error("Like Error:", err);
-        return res.status(500).json({ fatal: true });
+        return res.status(500).json({ fatal: true, error: err.message });
       }
       res.status(200).json({ message: "ভিডিও লাইক হয়েছে" });
     }
@@ -79,6 +76,7 @@ const likeVideo = (req, res) => {
 const commentVideo = (req, res) => {
   const video_id = req.params.id;
   const { user_id, comment } = req.body;
+
   if (!user_id || !comment)
     return res.status(400).json({ message: "সব ফিল্ড পূরণ করুন" });
 
@@ -88,7 +86,7 @@ const commentVideo = (req, res) => {
     (err) => {
       if (err) {
         console.error("Comment Error:", err);
-        return res.status(500).json({ fatal: true });
+        return res.status(500).json({ fatal: true, error: err.message });
       }
       res.status(200).json({ message: "Comment added" });
     }
@@ -107,7 +105,7 @@ const shareVideo = (req, res) => {
     (err) => {
       if (err) {
         console.error("Share Error:", err);
-        return res.status(500).json({ fatal: true });
+        return res.status(500).json({ fatal: true, error: err.message });
       }
       res.status(200).json({ message: "ভিডিও শেয়ার হয়েছে" });
     }
