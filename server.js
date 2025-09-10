@@ -9,24 +9,28 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // ভিডিও serve করার জন্য
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ---------------------
 // MySQL Database
 // ---------------------
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306,
 });
 
 db.connect((err) => {
-    if (err) throw err;
-    console.log("✅ MySQL connected...");
+  if (err) {
+    console.error("❌ MySQL connection failed:", err);
+    process.exit(1);
+  }
+  console.log("✅ MySQL connected...");
 });
 
-module.exports = db; // Export db for controllers
+module.exports = db;
 
 // ---------------------
 // Routes
