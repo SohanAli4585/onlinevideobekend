@@ -1,4 +1,4 @@
-const db = require("../server");
+const db = require("../server"); // ensure server.js now exports a pool
 
 // Upload video
 const uploadVideo = (req, res) => {
