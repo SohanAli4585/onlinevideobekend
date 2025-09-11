@@ -25,9 +25,10 @@ app.use(express.json());
 app.use("/uploads", express.static(uploadDir)); // Serve videos
 
 // ---------------------
-// MySQL Database
+// MySQL Database (Connection Pool)
 // ---------------------
-const db = mysql.createConnection({
+const db = mysql.createPool({
+  connectionLimit: 10, // একসাথে 10 connection handle করতে পারবে
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -35,14 +36,19 @@ const db = mysql.createConnection({
   port: process.env.DB_PORT || 3306,
 });
 
-db.connect((err) => {
+// Test connection
+db.getConnection((err, connection) => {
   if (err) {
     console.error("❌ MySQL connection failed:", err);
     process.exit(1);
   }
   console.log("✅ MySQL connected...");
+  connection.release(); // Release connection back to pool
 });
 
+// ---------------------
+// Export db for controllers
+// ---------------------
 module.exports = db;
 
 // ---------------------
